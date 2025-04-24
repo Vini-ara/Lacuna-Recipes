@@ -2,8 +2,11 @@
 
 namespace Recipes.Entities
 {
-    public class RecipeIngredients
+    public class RecipeIngredient
     {
+        [Key]
+        public Guid Id { get; set; }
+
         public Guid RecipeId { get; set; }
         public Recipe Recipe { get; set; } = null!;
 

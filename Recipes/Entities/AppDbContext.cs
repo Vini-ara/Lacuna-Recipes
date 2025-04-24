@@ -9,7 +9,7 @@ namespace Recipes.Entities
 
         public DbSet<Ingredient> Ingredient { get; set; }
         public DbSet<Recipe> Recipe { get; set; }
-        public DbSet<RecipeIngredients> RecipeIngredients { get; set; }
+        public DbSet<RecipeIngredient> RecipeIngredient { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -19,15 +19,15 @@ namespace Recipes.Entities
 
             modelBuilder.Entity<Recipe>();
 
-            modelBuilder.Entity<RecipeIngredients>()
-                .HasKey(ri => new { ri.RecipeId, ri.IngredientId });
+            modelBuilder.Entity<RecipeIngredient>()
+                .HasAlternateKey(ri => new { ri.RecipeId, ri.IngredientId });
 
-            modelBuilder.Entity<RecipeIngredients>()
+            modelBuilder.Entity<RecipeIngredient>()
                 .HasOne(ri => ri.Recipe)
                 .WithMany()
                 .HasForeignKey(ri => ri.RecipeId);
 
-            modelBuilder.Entity<RecipeIngredients>()
+            modelBuilder.Entity<RecipeIngredient>()
                 .HasOne(ri => ri.Ingredient)
                 .WithMany()
                 .HasForeignKey(ri => ri.IngredientId);

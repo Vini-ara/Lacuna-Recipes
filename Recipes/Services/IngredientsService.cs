@@ -22,11 +22,6 @@ namespace Recipes.Services
         {
             var ingredient = await dbContext.Ingredient.FindAsync(id);
 
-            if (ingredient == null)
-            {
-                throw new KeyNotFoundException("Ingredient not found");
-            }
-
             return ingredient;
         }
 
@@ -40,11 +35,9 @@ namespace Recipes.Services
 
         public async Task<Ingredient> UpdateIngredient(Guid id, Ingredient ingredient)
         {
-            var dbIngredient = await dbContext.Ingredient.FindAsync(id);
-
-            if (dbIngredient == null)
+            if (id != ingredient.Id)
             {
-                throw new KeyNotFoundException("Ingredient not found");
+                throw new ArgumentException("Ingredient ID mismatch");
             }
 
             dbContext.Ingredient.Update(ingredient);
@@ -62,7 +55,8 @@ namespace Recipes.Services
                 throw new KeyNotFoundException("Ingredient not found");
             }
 
-            await dbContext.Ingredient.Where(ingredient => ingredient.Id == id).ExecuteDeleteAsync();
+            dbContext.Ingredient.Remove(dbIngredient);
+            await dbContext.SaveChangesAsync();
 
             return dbIngredient;
         }
