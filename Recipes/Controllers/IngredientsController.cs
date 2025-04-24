@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Recipes.Services;
-using Recipes.Entities;
+using Recipes.Dtos;
 
 namespace Recipes.Controllers
 {
@@ -28,35 +28,20 @@ namespace Recipes.Controllers
         {
             var ingredient = await ingredientsService.GetById(id);
 
-            if (ingredient == null)
-            {
-                return NotFound();
-            }
-
             return Ok(ingredient);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateIngredient([FromBody] Ingredient ingredient)
+        public async Task<IActionResult> CreateIngredient([FromBody] CreateIngredientDto ingredient)
         {
-            if (ingredient == null)
-            {
-                return BadRequest("Ingredient cannot be null");
-            }
-
             var createdIngredient = await ingredientsService.CreateIngredient(ingredient);
 
             return CreatedAtAction(nameof(GetIngredientById), new { id = createdIngredient.Id }, createdIngredient);
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> UpdateIngredient(Guid id, [FromBody] Ingredient ingredient)
+        public async Task<IActionResult> UpdateIngredient(Guid id, [FromBody] UpdateIngredientDto ingredient)
         {
-            if (ingredient == null)
-            {
-                return BadRequest("Ingredient cannot be null");
-            }
-
             var updatedIngredient = await ingredientsService.UpdateIngredient(id, ingredient);
 
             return Ok(updatedIngredient);

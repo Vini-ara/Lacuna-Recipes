@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Recipes.Entities;
+using Recipes.Dtos;
 
 namespace Recipes.Services
 {
@@ -22,23 +23,49 @@ namespace Recipes.Services
         {
             var ingredient = await dbContext.Ingredient.FindAsync(id);
 
+            if (ingredient == null)
+            {
+                throw new KeyNotFoundException("Ingredient not found");
+            }
+
             return ingredient;
         }
 
-        public async Task<Ingredient> CreateIngredient(Ingredient ingredient)
+        public async Task<Ingredient> CreateIngredient(CreateIngredientDto ingredientDto)
         {
+            var ingredient = new Ingredient
+            {
+                Id = Guid.NewGuid(),
+                Name = ingredientDto.Name,
+                Unit = ingredientDto.Unit
+            };
+
             await dbContext.Ingredient.AddAsync(ingredient);
             await dbContext.SaveChangesAsync();
 
             return ingredient;
         }
 
-        public async Task<Ingredient> UpdateIngredient(Guid id, Ingredient ingredient)
+        public async Task<Ingredient> UpdateIngredient(Guid id, UpdateIngredientDto ingredientDto)
         {
-            if (id != ingredient.Id)
+            if (id != ingredientDto.Id)
             {
                 throw new ArgumentException("Ingredient ID mismatch");
             }
+
+            var dbIngredient = await dbContext.Ingredient.FindAsync(id);
+
+            if (dbIngredient == null)
+            {
+                throw new KeyNotFoundException("Ingredient not found");
+            }
+
+            var ingredient = new Ingredient
+            {
+                Id = id,
+                Name = ingredientDto.Name,
+                Unit = ingredientDto.Unit
+            };
 
             dbContext.Ingredient.Update(ingredient);
             await dbContext.SaveChangesAsync();

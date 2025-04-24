@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Recipes.Entities;
+using Recipes.Dtos;
 
 namespace Recipes.Services
 {
@@ -12,63 +13,57 @@ namespace Recipes.Services
             this.dbContext = dbContext;
         }
 
-        public async Task<List<RecipeIngredient>> GetAllRecipeIngredients()
-        {
-            var recipeIngredients = await dbContext.RecipeIngredient.ToListAsync();
-
-            return recipeIngredients;
-        }
-
-        public async Task<List<RecipeIngredient>> GetAllRecipeIngredientsByRecipeId(Guid recipeId)
+        public async Task<List<GetManyRecipeIngredientDto>> GetAllRecipeIngredientsByRecipeId(Guid recipeId)
         {
             var recipeIngredients = await dbContext.RecipeIngredient
                 .Where(ri => ri.RecipeId == recipeId)
+                .Include(ri => ri.Ingredient)
                 .ToListAsync();
 
-            return recipeIngredients;
+            var recipeIngredientsDto = recipeIngredients
+              .Select(ri => new GetManyRecipeIngredientDto
+              {
+                  Id = ri.Id,
+                  Ingredient = new GetOneIngredientDto
+                  {
+                      Id = ri.Ingredient.Id,
+                      Name = ri.Ingredient.Name,
+                      Unit = ri.Ingredient.Unit,
+                  },
+                  Ammount = ri.Ammount,
+              })
+              .ToList();
+
+            return recipeIngredientsDto;
         }
 
-        public async Task<RecipeIngredient> GetById(Guid id)
+        public async Task<List<GetManyRecipeIngredientDto>> CreateManyRecipeIngredients(CreateRecipeIngredientDto[] recipeIngredientsDto, Guid recipeId)
         {
-            var recipeIngredient = await dbContext.RecipeIngredient.FindAsync(id);
+            var recipeIngredients = recipeIngredientsDto
+                .Select(ri => new RecipeIngredient
+                {
+                    Id = Guid.NewGuid(),
+                    RecipeId = recipeId,
+                    IngredientId = ri.IngredientId,
+                    Ammount = ri.Ammount,
+                })
+                .ToArray();
 
-            return recipeIngredient;
-        }
-
-        public async Task<RecipeIngredient> CreateRecipeIngredient(RecipeIngredient recipeIngredient)
-        {
-            await dbContext.RecipeIngredient.AddAsync(recipeIngredient);
+            await dbContext.RecipeIngredient.AddRangeAsync(recipeIngredients);
             await dbContext.SaveChangesAsync();
 
-            return recipeIngredient;
+            var recipeIngredientsResult = await this.GetAllRecipeIngredientsByRecipeId(recipeId);
+
+            return recipeIngredientsResult;
         }
 
-        public async Task<RecipeIngredient> UpdateRecipeIngredient(Guid id, RecipeIngredient recipeIngredients)
+        public async Task<Recipe> DeleteManyRecipeIngredientsByRecipe(Recipe recipe)
         {
-            if (id != recipeIngredients.Id)
-            {
-                throw new ArgumentException("Recipe ID mismatch");
-            }
-
-            dbContext.RecipeIngredient.Update(recipeIngredients);
+            dbContext.RecipeIngredient.RemoveRange(dbContext.RecipeIngredient
+                .Where(ri => ri.RecipeId == recipe.Id));
             await dbContext.SaveChangesAsync();
 
-            return recipeIngredients;
-        }
-
-        public async Task<RecipeIngredient> DeleteRecipeIngredient(Guid id)
-        {
-            var dbRecipe = await dbContext.RecipeIngredient.FindAsync(id);
-
-            if (dbRecipe == null)
-            {
-                throw new KeyNotFoundException("Recipe not found");
-            }
-
-            dbContext.RecipeIngredient.Remove(dbRecipe);
-            await dbContext.SaveChangesAsync();
-
-            return dbRecipe;
+            return recipe;
         }
     }
 }

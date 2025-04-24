@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Recipes.Services;
 using Recipes.Entities;
+using Recipes.Dtos;
 
 namespace Recipes.Controllers
 {
@@ -28,16 +29,11 @@ namespace Recipes.Controllers
         {
             var recipe = await recipesService.GetById(id);
 
-            if (recipe == null)
-            {
-                return NotFound();
-            }
-
             return Ok(recipe);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateRecipe([FromBody] Recipe recipe)
+        public async Task<IActionResult> CreateRecipe([FromBody] CreateRecipeDto recipe)
         {
             var createdRecipe = await recipesService.CreateRecipe(recipe);
 
@@ -45,7 +41,7 @@ namespace Recipes.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> UpdateRecipe(Guid id, [FromBody] Recipe recipe)
+        public async Task<IActionResult> UpdateRecipe(Guid id, [FromBody] UpdateRecipeDto recipe)
         {
             var updatedRecipe = await recipesService.UpdateRecipe(id, recipe);
 
