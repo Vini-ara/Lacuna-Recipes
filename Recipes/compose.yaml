@@ -1,0 +1,24 @@
+services:
+  database:
+    image: postgres
+    volumes:
+      - new_db_data:/var/lib/postgresql/data
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: senha
+      POSTGRES_USER: vini
+      POSTGRES_DB: Recipes
+
+  recipes_api:
+    build:
+      context: .
+    depends_on:
+      - database
+    ports:
+      - "8080:8080"
+    restart: always
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=database;Database=Recipes;Username=vini;Password=senha
+
+volumes:
+  new_db_data:  
