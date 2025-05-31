@@ -2,6 +2,7 @@ namespace Recipes.Dtos {
   public class CreateIngredientDto {
     public string Name { get; set; }
     public string Unit { get; set; }
+
   }
 
   public class UpdateIngredientDto {
