@@ -1,5 +1,5 @@
 pr:
-  - main
+  - master
 
 jobs:
   - job: Lint
