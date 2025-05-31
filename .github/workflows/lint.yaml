@@ -21,4 +21,4 @@ jobs:
         run: dotnet restore Recipes
 
       - name: Lint
-        run: dotnet format
+        run: dotnet format --verify-no-changes
