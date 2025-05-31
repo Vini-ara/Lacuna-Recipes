@@ -1,8 +1,0 @@
-pr:
-  - master
-
-jobs:
-  - job: Lint
-    steps:
-      - checkout: self
-        fetchDepth: 0
