@@ -4,6 +4,7 @@ using Recipes.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 try {
   // Add services to the container.
   builder.Services.AddDbContext<AppDbContext>(options => 
